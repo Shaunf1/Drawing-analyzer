@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+dist/
+build/
+
+# Secrets / env
+.env
+*.env
+
+# Large or confidential drawings — commit small redacted fixtures only
+tests/fixtures/drawings/*.dwg
+tests/fixtures/drawings/*.pdf
+!tests/fixtures/drawings/sample_*.dxf
+
+# Harness/local
+.DS_Store
+.idea/
+.vscode/
