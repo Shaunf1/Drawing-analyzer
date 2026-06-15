@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "drawing-analyzer"
+version = "0.0.1"
+description = "Extract structured data from architectural and structural PDF/DWG drawings."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.4",
+    "mypy>=1.10",
+    "pytest>=8.2",
+]
+
+[project.scripts]
+drawing-analyzer = "drawing_analyzer.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/drawing_analyzer"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "PTH"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["drawing_analyzer"]
+
+[tool.mypy]
+python_version = "3.12"
+mypy_path = "src"
+packages = ["drawing_analyzer"]
+strict = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra"
