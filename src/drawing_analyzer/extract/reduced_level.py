@@ -5,8 +5,9 @@ from __future__ import annotations
 import re
 from collections.abc import Iterable
 
+from drawing_analyzer.extract.provenance import provenance_of
 from drawing_analyzer.ingest.document import TextAnnotation
-from drawing_analyzer.model import Provenance, ReducedLevel
+from drawing_analyzer.model import ReducedLevel
 
 _MM_PER_METRE = 1000.0
 
@@ -29,18 +30,11 @@ def extract_reduced_levels(annotations: Iterable[TextAnnotation]) -> list[Reduce
         match = _RL_PATTERN.search(annotation.text)
         if match is None:
             continue
-        elevation_mm = float(match.group("value")) * _MM_PER_METRE
-        provenance = Provenance(
-            source_file=annotation.source_file,
-            page=annotation.page,
-            layer=annotation.layer,
-            location=annotation.location,
-        )
         levels.append(
             ReducedLevel(
-                elevation_mm=elevation_mm,
+                elevation_mm=float(match.group("value")) * _MM_PER_METRE,
                 label=match.group(0).strip(),
-                provenance=provenance,
+                provenance=provenance_of(annotation),
                 is_structural_slab_level=match.group("kind").upper() == "SSL",
             )
         )

@@ -6,15 +6,18 @@ import argparse
 from pathlib import Path
 
 from drawing_analyzer.dxf import read_text_annotations
-from drawing_analyzer.extract import extract_reduced_levels
-from drawing_analyzer.report import reduced_levels_to_json
+from drawing_analyzer.extract import extract_reduced_levels, extract_slab_depths
+from drawing_analyzer.report import extraction_to_json
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Extract reduced levels from a DXF drawing and print them as JSON. Returns an exit code."""
+    """Extract reduced levels and slab depths from a DXF drawing and print them as JSON.
+
+    Returns a process exit code.
+    """
     parser = argparse.ArgumentParser(
         prog="drawing-analyzer",
-        description="Extract reduced levels (RL/SSL) from a DXF drawing.",
+        description="Extract reduced levels (RL/SSL) and slab depths from a DXF drawing.",
     )
     parser.add_argument("drawing", type=Path, help="path to a .dxf drawing")
     args = parser.parse_args(argv)
@@ -24,7 +27,8 @@ def main(argv: list[str] | None = None) -> int:
 
     annotations = read_text_annotations(args.drawing)
     levels = extract_reduced_levels(annotations)
-    print(reduced_levels_to_json(levels))
+    slabs = extract_slab_depths(annotations)
+    print(extraction_to_json(levels, slabs))
     return 0
 
 
