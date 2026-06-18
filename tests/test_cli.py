@@ -19,9 +19,7 @@ def _write_dxf(path: Path) -> None:
     doc.saveas(path)
 
 
-def test_main_prints_extraction_as_json(
-    tmp_path: Path, capsys: pytest.CaptureFixture[str]
-) -> None:
+def test_main_prints_extraction_as_json(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     drawing = tmp_path / "plan.dxf"
     _write_dxf(drawing)
 
