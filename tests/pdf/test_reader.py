@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import pymupdf
+import pytest
 
 from drawing_analyzer.pdf import read_pdf
 
@@ -30,12 +31,13 @@ def test_reads_lines_with_page_number(tmp_path: Path) -> None:
     assert document.block_references == ()
 
 
-def test_keeps_line_position(tmp_path: Path) -> None:
+def test_keeps_line_position_in_millimetres(tmp_path: Path) -> None:
     drawing = tmp_path / "plan.pdf"
     _write_pdf(drawing)
 
     rl = next(a for a in read_pdf(drawing).text_annotations if a.text == "RL 12.500")
 
     assert rl.location is not None
-    assert rl.location[0] == 100.0
+    # x = 100 points converted to millimetres (1 point = 1/72 inch).
+    assert rl.location[0] == pytest.approx(100 * 25.4 / 72)
     assert rl.source_file == drawing

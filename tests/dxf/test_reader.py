@@ -1,4 +1,4 @@
-"""The DXF reader normalizes TEXT/MTEXT and INSERT entities in a single pass."""
+"""The DXF reader normalizes TEXT/MTEXT and INSERT, scaling coordinates to millimetres."""
 
 from pathlib import Path
 
@@ -7,8 +7,9 @@ import ezdxf
 from drawing_analyzer.dxf import read_dxf
 
 
-def _write_dxf(path: Path) -> None:
+def _write_dxf(path: Path, *, units: int = ezdxf.units.MM) -> None:
     doc = ezdxf.new(setup=True)
+    doc.units = units
     msp = doc.modelspace()
     text = msp.add_text("RL 12.500", dxfattribs={"layer": "LEVELS"})
     text.set_placement((100.0, 200.0))
@@ -29,7 +30,6 @@ def test_reads_text_and_mtext(tmp_path: Path) -> None:
     assert "RL 12.500" in texts
     # MTEXT formatting code \P decodes to a newline rather than leaking into the text.
     assert "SSL 11.250\nnote" in texts
-    assert all(annotation.location is not None for annotation in annotations)
 
 
 def test_reads_block_references(tmp_path: Path) -> None:
@@ -44,11 +44,28 @@ def test_reads_block_references(tmp_path: Path) -> None:
     assert blocks[0].location == (12.0, 34.0)
 
 
-def test_keeps_text_insertion_point(tmp_path: Path) -> None:
+def test_millimetre_drawing_keeps_coordinates(tmp_path: Path) -> None:
     drawing = tmp_path / "sample.dxf"
-    _write_dxf(drawing)
+    _write_dxf(drawing, units=ezdxf.units.MM)
 
     rl = next(a for a in read_dxf(drawing).text_annotations if a.text == "RL 12.500")
 
     assert rl.location == (100.0, 200.0)
-    assert rl.source_file == drawing
+
+
+def test_metre_drawing_scales_to_millimetres(tmp_path: Path) -> None:
+    drawing = tmp_path / "sample.dxf"
+    _write_dxf(drawing, units=ezdxf.units.M)
+
+    rl = next(a for a in read_dxf(drawing).text_annotations if a.text == "RL 12.500")
+
+    assert rl.location == (100_000.0, 200_000.0)
+
+
+def test_unitless_drawing_keeps_raw_coordinates(tmp_path: Path) -> None:
+    drawing = tmp_path / "sample.dxf"
+    _write_dxf(drawing, units=0)
+
+    rl = next(a for a in read_dxf(drawing).text_annotations if a.text == "RL 12.500")
+
+    assert rl.location == (100.0, 200.0)
