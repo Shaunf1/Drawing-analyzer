@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-06-16
+last_updated: 2026-06-20
 staleness_threshold_days: 120
 ---
 
@@ -30,10 +30,11 @@ Verified against **ezdxf 1.4.4** (the pinned dependency). Re-check when bumping 
 
 ## Units and scale
 
-- `$INSUNITS` codes via `ezdxf.units`: `MM` = 4, `M` = 6 (also CM, INCH, FEET, etc.). `doc.units`
+- `$INSUNITS` codes via `ezdxf.units`: `MM` = 4, `M` = 6 (also CM = 5, INCH = 1, FEET = 2). `doc.units`
   returns the raw int. A document may carry `0` (unitless), so a parser must not assume millimetres.
-- Coordinates from entities are in the document's drawing units, **not** millimetres. Scaling to the
-  domain model's millimetres belongs in the DXF subsystem, not in extractors.
+- The DXF subsystem scales entity coordinates to millimetres, not the extractors. `dxf.units`
+  (`millimetres_per_unit`) maps an $INSUNITS code to a mm-per-unit factor and `read_dxf` applies it; a
+  unitless or unsupported code returns None and coordinates are kept as raw drawing units.
 
 ## DWG -> DXF (ODA File Converter)
 
