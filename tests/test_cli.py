@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import ezdxf
+import pymupdf
 import pytest
 
 from drawing_analyzer.cli import main
@@ -19,7 +20,16 @@ def _write_dxf(path: Path) -> None:
     doc.saveas(path)
 
 
-def test_main_prints_extraction_as_json(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def _write_pdf(path: Path) -> None:
+    doc = pymupdf.open()
+    page = doc.new_page()
+    page.insert_text((100, 100), "RL 12.500")
+    page.insert_text((100, 130), "SLAB 300")
+    doc.save(path)
+    doc.close()
+
+
+def test_main_extracts_from_dxf(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     drawing = tmp_path / "plan.dxf"
     _write_dxf(drawing)
 
@@ -31,8 +41,20 @@ def test_main_prints_extraction_as_json(tmp_path: Path, capsys: pytest.CaptureFi
     assert payload["slab_profiles"][0]["depth_mm"] == 300.0
 
 
-def test_main_rejects_non_dxf(tmp_path: Path) -> None:
+def test_main_extracts_from_pdf(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    drawing = tmp_path / "plan.pdf"
+    _write_pdf(drawing)
+
+    exit_code = main([str(drawing)])
+
+    assert exit_code == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["reduced_levels"][0]["elevation_mm"] == 12500.0
+    assert payload["slab_profiles"][0]["depth_mm"] == 300.0
+
+
+def test_main_rejects_unsupported_extension(tmp_path: Path) -> None:
     with pytest.raises(SystemExit) as exit_info:
-        main([str(tmp_path / "plan.pdf")])
+        main([str(tmp_path / "plan.txt")])
 
     assert exit_info.value.code == 2

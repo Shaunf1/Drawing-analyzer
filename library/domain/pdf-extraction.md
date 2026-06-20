@@ -1,13 +1,16 @@
 ---
-last_updated: 2026-06-16
+last_updated: 2026-06-18
 staleness_threshold_days: 90
 ---
 
 # PDF extraction (PyMuPDF / pdfplumber / OCR)
 
-PyMuPDF and pdfplumber are **not yet project dependencies** (no PDF code exists). The facts below come
-from research, not from an installed package; verify against the installed version when the PDF
-subsystem is built, and tighten this entry then.
+PyMuPDF (`pymupdf>=1.24`) is a project dependency; the text-extraction facts below are verified against
+the installed package. pdfplumber is not yet used. The table and OCR sections remain research-level
+until that code is written, so re-verify them then.
+
+The PDF reader (`drawing_analyzer.pdf.reader`) extracts one `TextAnnotation` per text line via
+`get_text("dict")`, joining a line's spans so multi-token labels like "RL 12.500" stay intact.
 
 ## Library choice
 
