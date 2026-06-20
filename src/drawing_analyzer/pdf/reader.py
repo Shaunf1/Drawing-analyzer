@@ -1,4 +1,4 @@
-"""Read text from a PDF file into normalized annotations, one per text line."""
+"""Read text from a PDF file into a normalized document, one annotation per text line."""
 
 from __future__ import annotations
 
@@ -6,13 +6,13 @@ from pathlib import Path
 
 import pymupdf
 
-from drawing_analyzer.ingest.document import TextAnnotation
+from drawing_analyzer.ingest.document import Document, TextAnnotation
 
 _TEXT_BLOCK = 0  # PyMuPDF block type for text (image blocks are type 1).
 
 
-def read_text_annotations(path: Path) -> list[TextAnnotation]:
-    """Open a PDF and return its text lines as normalized annotations.
+def read_pdf(path: Path) -> Document:
+    """Open a PDF and return its text lines as a normalized document (no block references).
 
     Text is grouped per line so multi-token labels (e.g. "RL 12.500") stay intact. Coordinates are
     the line's top-left corner in PDF points (origin top-left), the source-native unit, not
@@ -38,4 +38,4 @@ def read_text_annotations(path: Path) -> list[TextAnnotation]:
                             page=page_number,
                         )
                     )
-    return annotations
+    return Document(text_annotations=tuple(annotations))

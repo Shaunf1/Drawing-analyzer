@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-06-16
+last_updated: 2026-06-20
 staleness_threshold_days: 365
 ---
 
@@ -31,6 +31,16 @@ slowly but varies by office and region, so treat patterns as defaults to widen a
   as millimetres (no metre conversion, unlike RLs) on `SlabProfile.depth_mm`.
 - A "concrete profile" is the section/outline of a concrete element; capture the boundary as a
   millimetre polyline (`SlabProfile.outline`) when geometry is recoverable.
+
+## General-arrangement (GA) elements
+
+- Structural members on a GA drawing are typically placed as **block references** (DXF INSERT), not
+  loose geometry, so the block name is the main classification signal.
+- `extract_ga_elements` classifies each block by keyword in its name: `COL` -> column, `BEAM` -> beam,
+  `WALL` -> wall, `SLAB` -> slab, otherwise `OTHER`. Block naming is not standardized across offices,
+  so treat the keyword list as a default to widen against real drawings rather than a fixed schema.
+- Every block reference becomes one `GAElement` (unknown names get `OTHER`) so nothing is silently
+  dropped; filter by kind downstream if title blocks or grid bubbles are noise.
 
 ## Provenance and units, always
 
