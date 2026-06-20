@@ -17,6 +17,8 @@ def _write_dxf(path: Path) -> None:
     text.set_placement((100.0, 200.0))
     slab = msp.add_text("SLAB 300", dxfattribs={"layer": "SLABS"})
     slab.set_placement((50.0, 60.0))
+    doc.blocks.new(name="COL-300")
+    msp.add_blockref("COL-300", (12.0, 34.0), dxfattribs={"layer": "COLS"})
     doc.saveas(path)
 
 
@@ -39,6 +41,7 @@ def test_main_extracts_from_dxf(tmp_path: Path, capsys: pytest.CaptureFixture[st
     payload = json.loads(capsys.readouterr().out)
     assert payload["reduced_levels"][0]["elevation_mm"] == 12500.0
     assert payload["slab_profiles"][0]["depth_mm"] == 300.0
+    assert payload["ga_elements"][0]["kind"] == "column"
 
 
 def test_main_extracts_from_pdf(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:

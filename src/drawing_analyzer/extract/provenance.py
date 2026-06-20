@@ -1,16 +1,37 @@
-"""Map a normalized annotation to domain provenance."""
+"""Map a normalized source item to domain provenance."""
 
 from __future__ import annotations
 
-from drawing_analyzer.ingest.document import TextAnnotation
+from pathlib import Path
+from typing import Protocol
+
 from drawing_analyzer.model import Provenance
 
 
-def provenance_of(annotation: TextAnnotation) -> Provenance:
-    """Build the provenance record for a value extracted from ``annotation``."""
+class SourcePlaced(Protocol):
+    """A source item that knows where it came from: any annotation or block reference.
+
+    Members are read-only properties so frozen dataclass fields (which are read-only) match.
+    """
+
+    @property
+    def source_file(self) -> Path: ...
+
+    @property
+    def layer(self) -> str | None: ...
+
+    @property
+    def location(self) -> tuple[float, float] | None: ...
+
+    @property
+    def page(self) -> int | None: ...
+
+
+def provenance_of(item: SourcePlaced) -> Provenance:
+    """Build the provenance record for a value extracted from ``item``."""
     return Provenance(
-        source_file=annotation.source_file,
-        page=annotation.page,
-        layer=annotation.layer,
-        location=annotation.location,
+        source_file=item.source_file,
+        page=item.page,
+        layer=item.layer,
+        location=item.location,
     )

@@ -20,3 +20,26 @@ class TextAnnotation:
     layer: str | None = None
     location: tuple[float, float] | None = None
     page: int | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class BlockReference:
+    """A block (symbol) instance placed in a drawing, e.g. a column or fixture.
+
+    ``name`` is the block definition name. ``location`` is the insertion point in the source's
+    native units (DXF drawing units), not millimetres. ``layer`` is the DXF layer, or None.
+    """
+
+    name: str
+    source_file: Path
+    layer: str | None = None
+    location: tuple[float, float] | None = None
+    page: int | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class Document:
+    """The normalized contents of a drawing: its text annotations and block references."""
+
+    text_annotations: tuple[TextAnnotation, ...] = ()
+    block_references: tuple[BlockReference, ...] = ()

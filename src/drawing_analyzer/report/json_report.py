@@ -7,7 +7,7 @@ from collections.abc import Iterable
 from dataclasses import asdict
 from typing import Any
 
-from drawing_analyzer.model import ReducedLevel, SlabProfile
+from drawing_analyzer.model import GAElement, ReducedLevel, SlabProfile
 
 
 def reduced_levels_to_json(levels: Iterable[ReducedLevel], *, indent: int = 2) -> str:
@@ -20,9 +20,15 @@ def slab_profiles_to_json(profiles: Iterable[SlabProfile], *, indent: int = 2) -
     return json.dumps([_entity_to_dict(profile) for profile in profiles], indent=indent)
 
 
+def ga_elements_to_json(elements: Iterable[GAElement], *, indent: int = 2) -> str:
+    """Render GA elements as a JSON array, including provenance."""
+    return json.dumps([_entity_to_dict(element) for element in elements], indent=indent)
+
+
 def extraction_to_json(
     reduced_levels: Iterable[ReducedLevel],
     slab_profiles: Iterable[SlabProfile],
+    ga_elements: Iterable[GAElement],
     *,
     indent: int = 2,
 ) -> str:
@@ -30,6 +36,7 @@ def extraction_to_json(
     payload = {
         "reduced_levels": [_entity_to_dict(level) for level in reduced_levels],
         "slab_profiles": [_entity_to_dict(profile) for profile in slab_profiles],
+        "ga_elements": [_entity_to_dict(element) for element in ga_elements],
     }
     return json.dumps(payload, indent=indent)
 
