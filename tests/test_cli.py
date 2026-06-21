@@ -1,5 +1,7 @@
-"""The CLI runs the DXF -> extract -> JSON pipeline end to end."""
+"""The CLI runs the drawing -> extract -> report pipeline end to end."""
 
+import csv
+import io
 import json
 from pathlib import Path
 
@@ -54,6 +56,18 @@ def test_main_extracts_from_pdf(tmp_path: Path, capsys: pytest.CaptureFixture[st
     payload = json.loads(capsys.readouterr().out)
     assert payload["reduced_levels"][0]["elevation_mm"] == 12500.0
     assert payload["slab_profiles"][0]["depth_mm"] == 300.0
+
+
+def test_main_writes_csv_format(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    drawing = tmp_path / "plan.dxf"
+    _write_dxf(drawing)
+
+    exit_code = main([str(drawing), "--format", "csv"])
+
+    assert exit_code == 0
+    rows = list(csv.DictReader(io.StringIO(capsys.readouterr().out)))
+    entity_types = {row["entity_type"] for row in rows}
+    assert entity_types == {"reduced_level", "slab_profile", "ga_element"}
 
 
 def test_main_rejects_unsupported_extension(tmp_path: Path) -> None:
