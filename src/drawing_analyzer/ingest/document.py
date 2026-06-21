@@ -10,9 +10,9 @@ from pathlib import Path
 class TextAnnotation:
     """A piece of text read from a source drawing, with where it sits and where it came from.
 
-    ``location`` is where the value sits: millimetres for DXF sources (scaled via $INSUNITS, raw
-    drawing units when the DXF is unitless) or PDF points for PDF sources. ``layer`` is the DXF
-    layer name, or None for sources without layers; ``page`` is the 1-based PDF page, or None for DXF.
+    ``location`` is where the value sits: millimetres for DXF (scaled via $INSUNITS; raw
+    drawing units when unitless) or PDF points for PDF sources. ``layer`` is the DXF layer
+    name (None for PDF); ``page`` is the 1-based PDF page (None for DXF).
     """
 
     text: str
