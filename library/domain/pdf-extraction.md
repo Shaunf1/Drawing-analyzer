@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-06-18
+last_updated: 2026-06-20
 staleness_threshold_days: 90
 ---
 
@@ -43,6 +43,16 @@ The PDF reader (`drawing_analyzer.pdf.reader`) extracts one `TextAnnotation` per
 - PyMuPDF can OCR via Tesseract (`page.get_textpage_ocr(...)`, requires Tesseract installed) or render
   to a pixmap and run `pytesseract` directly. OCR is slow and error-prone on drawings, dense with thin
   annotation; treat OCR output as low-confidence and keep provenance.
+
+## Writing markup annotations
+
+- `report.pdf_markup` draws review markups onto a copy of the PDF: `page.add_rect_annot(rect)` for a
+  box around a detected value and `page.add_freetext_annot(rect, text, fontsize=..., text_color=...)`
+  for a visible label. Set appearance with `annot.set_colors(stroke=...)`, `annot.set_border(width=...)`,
+  and `annot.set_info(content=...)` (the content shows in a PDF reader's comment panel), then call
+  `annot.update()` to commit each one before `document.save(output)`.
+- Annotation coordinates are in the same PDF-point page space as `get_text`, so a value's recorded
+  text position can be reused directly to place its box.
 
 ## Gotchas
 

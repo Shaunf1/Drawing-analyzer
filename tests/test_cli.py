@@ -70,6 +70,32 @@ def test_main_writes_csv_format(tmp_path: Path, capsys: pytest.CaptureFixture[st
     assert entity_types == {"reduced_level", "slab_profile", "ga_element"}
 
 
+def test_main_writes_markup_pdf(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    drawing = tmp_path / "plan.pdf"
+    _write_pdf(drawing)
+    output = tmp_path / "marked.pdf"
+
+    exit_code = main([str(drawing), "--markup", str(output)])
+
+    assert exit_code == 0
+    assert output.exists()
+    assert "markup annotations" in capsys.readouterr().out
+    marked = pymupdf.open(output)
+    annotation_count = len(list(marked[0].annots()))
+    marked.close()
+    assert annotation_count >= 1
+
+
+def test_markup_requires_pdf(tmp_path: Path) -> None:
+    drawing = tmp_path / "plan.dxf"
+    _write_dxf(drawing)
+
+    with pytest.raises(SystemExit) as exit_info:
+        main([str(drawing), "--markup", str(tmp_path / "out.pdf")])
+
+    assert exit_info.value.code == 2
+
+
 def test_main_rejects_unsupported_extension(tmp_path: Path) -> None:
     with pytest.raises(SystemExit) as exit_info:
         main([str(tmp_path / "plan.txt")])
