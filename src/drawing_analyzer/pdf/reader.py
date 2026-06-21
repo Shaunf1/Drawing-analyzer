@@ -15,8 +15,8 @@ def read_pdf(path: Path) -> Document:
     """Open a PDF and return its text lines as a normalized document (no block references).
 
     Text is grouped per line so multi-token labels (e.g. "RL 12.500") stay intact. Coordinates are
-    the line's top-left corner in PDF points (origin top-left), the source-native unit, not
-    millimetres. Pages are numbered from 1.
+    the line's top-left corner in PDF points (origin top-left); markup writing reuses these point
+    coordinates directly. Pages are numbered from 1.
     """
     annotations: list[TextAnnotation] = []
     # pymupdf ships py.typed but leaves Document() unannotated, so the open() call reads as untyped.

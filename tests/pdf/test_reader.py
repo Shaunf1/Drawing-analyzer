@@ -30,12 +30,13 @@ def test_reads_lines_with_page_number(tmp_path: Path) -> None:
     assert document.block_references == ()
 
 
-def test_keeps_line_position(tmp_path: Path) -> None:
+def test_keeps_line_position_in_points(tmp_path: Path) -> None:
     drawing = tmp_path / "plan.pdf"
     _write_pdf(drawing)
 
     rl = next(a for a in read_pdf(drawing).text_annotations if a.text == "RL 12.500")
 
     assert rl.location is not None
+    # PDF positions stay in points so markup writing can reuse them directly.
     assert rl.location[0] == 100.0
     assert rl.source_file == drawing

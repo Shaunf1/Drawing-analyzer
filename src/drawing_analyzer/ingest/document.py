@@ -10,9 +10,9 @@ from pathlib import Path
 class TextAnnotation:
     """A piece of text read from a source drawing, with where it sits and where it came from.
 
-    ``location`` is the insertion point in the source's native units (DXF drawing units or PDF
-    page points), not millimetres. ``layer`` is the DXF layer name, or None for sources without
-    layers; ``page`` is the 1-based PDF page, or None for DXF.
+    ``location`` is where the value sits: millimetres for DXF (scaled via $INSUNITS; raw
+    drawing units when unitless) or PDF points for PDF sources. ``layer`` is the DXF layer
+    name (None for PDF); ``page`` is the 1-based PDF page (None for DXF).
     """
 
     text: str
@@ -26,8 +26,9 @@ class TextAnnotation:
 class BlockReference:
     """A block (symbol) instance placed in a drawing, e.g. a column or fixture.
 
-    ``name`` is the block definition name. ``location`` is the insertion point in the source's
-    native units (DXF drawing units), not millimetres. ``layer`` is the DXF layer, or None.
+    ``name`` is the block definition name. ``location`` is the insertion point in millimetres from
+    the drawing origin (raw drawing units when the DXF is unitless). Block references are DXF-only.
+    ``layer`` is the DXF layer, or None.
     """
 
     name: str
