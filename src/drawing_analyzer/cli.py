@@ -11,13 +11,14 @@ from drawing_analyzer.extract import (
     extract_slab_depths,
 )
 from drawing_analyzer.ingest import read_document
-from drawing_analyzer.report import extraction_to_csv, extraction_to_json
+from drawing_analyzer.report import extraction_to_csv, extraction_to_json, write_markup
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Extract reduced levels, slab depths, and GA elements from a drawing and print them.
+    """Extract reduced levels, slab depths, and GA elements from a drawing.
 
-    Accepts a DXF or PDF drawing and writes JSON (default) or CSV. Returns a process exit code.
+    Prints the extraction as JSON (default) or CSV, or with --markup writes an annotated copy of a
+    PDF drawing with the detected values marked. Accepts a DXF or PDF drawing. Returns an exit code.
     """
     parser = argparse.ArgumentParser(
         prog="drawing-analyzer",
@@ -30,6 +31,13 @@ def main(argv: list[str] | None = None) -> int:
         default="json",
         help="output format (default: json)",
     )
+    parser.add_argument(
+        "--markup",
+        type=Path,
+        default=None,
+        metavar="OUTPUT_PDF",
+        help="write an annotated PDF copy with detected values marked (PDF input only)",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -40,6 +48,14 @@ def main(argv: list[str] | None = None) -> int:
     levels = extract_reduced_levels(document.text_annotations)
     slabs = extract_slab_depths(document.text_annotations)
     ga_elements = extract_ga_elements(document.block_references)
+
+    if args.markup is not None:
+        if args.drawing.suffix.lower() != ".pdf":
+            parser.error("--markup requires a .pdf drawing")
+        marked = write_markup(args.drawing, args.markup, levels, slabs)
+        print(f"wrote {marked} markup annotations to {args.markup}")
+        return 0
+
     if args.format == "csv":
         print(extraction_to_csv(levels, slabs, ga_elements), end="")
     else:
